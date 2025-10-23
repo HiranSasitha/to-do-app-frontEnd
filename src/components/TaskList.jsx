@@ -65,7 +65,7 @@ const TaskList = ({ onTaskChange, refresh, onCounts }) => {
 
     return (
         <div>
-            <h4 className="mb-3 text-success">Pending Tasks</h4>
+            <h4 className="mb-3 text-success">Your Tasks</h4>
             {tasks.length === 0 ? (
                 <div className="alert alert-success text-center">
                     🎉 No Tasks Available!
