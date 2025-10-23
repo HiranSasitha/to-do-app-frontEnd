@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { getTasks, markTaskDone } from "../api";
+import { getTasks, markTaskDone, getCount } from "../api";
 
-const TaskList = ({ onTaskChange,refresh }) => {
+const TaskList = ({ onTaskChange, refresh, onCounts }) => {
     const [tasks, setTasks] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const pageSize = 6;
-
 
     const fetchTasks = async (page = 0) => {
         try {
@@ -26,11 +25,16 @@ const TaskList = ({ onTaskChange,refresh }) => {
         }
     };
 
-    // Mark task
     const handleDone = async (id, mark) => {
         try {
             await markTaskDone(id, mark);
             fetchTasks(currentPage);
+
+
+            const countRes = await getCount();
+            const data = countRes.data;
+            if (onCounts) onCounts(data.done, data.pen);
+
             onTaskChange();
         } catch (error) {
             console.error("Error updating task:", error);
@@ -53,7 +57,6 @@ const TaskList = ({ onTaskChange,refresh }) => {
         fetchTasks(0);
     }, [refresh]);
 
-    // Pagination
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
             fetchTasks(newPage);
@@ -81,14 +84,14 @@ const TaskList = ({ onTaskChange,refresh }) => {
                                                     task.completed ? "text-success" : "text-warning"
                                                 } fw-bold`}
                                             >
-              <span
-                  className={`me-2 ${
-                      task.completed ? "bg-success" : "bg-warning"
-                  } rounded-circle`}
-                  style={{width: "10px", height: "10px", display: "inline-block"}}
-              ></span>
+                                                <span
+                                                    className={`me-2 ${
+                                                        task.completed ? "bg-success" : "bg-warning"
+                                                    } rounded-circle`}
+                                                    style={{ width: "10px", height: "10px", display: "inline-block" }}
+                                                ></span>
                                                 {task.completed ? "Task Done" : "Pending"}
-            </span>
+                                            </span>
                                         </div>
 
                                         <p className="card-text mb-1">{task.description}</p>
@@ -99,14 +102,14 @@ const TaskList = ({ onTaskChange,refresh }) => {
                                                 onClick={() => handleDone(task.id, 1)}
                                                 className="btn btn-warning mt-auto"
                                             >
-                                                Click hear to task done
+                                                Mark Done
                                             </button>
                                         ) : (
                                             <button
                                                 onClick={() => handleDone(task.id, 0)}
                                                 className="btn btn-success mt-auto"
                                             >
-                                                Reverse Task
+                                                Reverse
                                             </button>
                                         )}
                                     </div>
@@ -114,7 +117,6 @@ const TaskList = ({ onTaskChange,refresh }) => {
                             </div>
                         ))}
                     </div>
-
 
                     <div className="d-flex justify-content-between align-items-center mt-4">
                         <button
@@ -126,8 +128,8 @@ const TaskList = ({ onTaskChange,refresh }) => {
                         </button>
 
                         <span>
-              Page {currentPage + 1} of {totalPages}
-            </span>
+                            Page {currentPage + 1} of {totalPages}
+                        </span>
 
                         <button
                             className="btn btn-outline-primary"
