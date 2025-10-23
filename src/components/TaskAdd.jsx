@@ -1,23 +1,43 @@
-import React, { useState } from "react";
-import { createTask } from "../api";
+import React, { useEffect, useState } from "react";
+import { createTask, getCount } from "../api";
 
-const TaskAdd = ({ onTaskCreated }) => {
+const TaskAdd = ({ onTaskCreated, refresh }) => {
     const [title, setTitle] = useState("");
+    const [pendingTask, setPendingTask] = useState(0);
+    const [doneTask, setDoneTask] = useState(0);
     const [description, setDescription] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title.trim()) return;
+
         await createTask({ title, description });
         setTitle("");
         setDescription("");
         onTaskCreated();
     };
 
+    const fetchCount = async () => {
+        try {
+            const res = await getCount();
+            const data = res.data;
+            setDoneTask(data.done);
+            setPendingTask(data.pen);
+        } catch (error) {
+            console.error("Error fetching counts:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCount(); //  refetch
+    }, [refresh]);
+
     return (
         <div className="card shadow-sm mb-4">
             <div className="card-body">
                 <h5 className="card-title text-primary">Add New Task</h5>
+
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <input

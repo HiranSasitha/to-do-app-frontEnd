@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getTasks, markTaskDone } from "../api";
 
-const TaskList = () => {
+const TaskList = ({ onTaskChange,refresh }) => {
     const [tasks, setTasks] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
@@ -31,14 +31,27 @@ const TaskList = () => {
         try {
             await markTaskDone(id, mark);
             fetchTasks(currentPage);
+            onTaskChange();
         } catch (error) {
             console.error("Error updating task:", error);
         }
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "No date";
+        const date = new Date(dateString);
+        return date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
     useEffect(() => {
         fetchTasks(0);
-    }, []);
+    }, [refresh]);
 
     // Pagination
     const handlePageChange = (newPage) => {
@@ -61,20 +74,37 @@ const TaskList = () => {
                             <div key={task.id} className="col-md-6 mb-3">
                                 <div className="card shadow-sm h-100">
                                     <div className="card-body d-flex flex-column">
-                                        <h5 className="card-title">{task.title}</h5>
-                                        <p className="card-text flex-grow-1">{task.description}</p>
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 className="card-title mb-0">{task.title}</h5>
+                                            <span
+                                                className={`d-flex align-items-center ${
+                                                    task.completed ? "text-success" : "text-warning"
+                                                } fw-bold`}
+                                            >
+              <span
+                  className={`me-2 ${
+                      task.completed ? "bg-success" : "bg-warning"
+                  } rounded-circle`}
+                  style={{width: "10px", height: "10px", display: "inline-block"}}
+              ></span>
+                                                {task.completed ? "Task Done" : "Pending"}
+            </span>
+                                        </div>
+
+                                        <p className="card-text mb-1">{task.description}</p>
+                                        <p className="card-text text-muted">{formatDate(task.date)}</p>
 
                                         {task.completed === false ? (
                                             <button
                                                 onClick={() => handleDone(task.id, 1)}
-                                                className="btn btn-success mt-auto"
+                                                className="btn btn-warning mt-auto"
                                             >
-                                                Done
+                                                Click hear to task done
                                             </button>
                                         ) : (
                                             <button
                                                 onClick={() => handleDone(task.id, 0)}
-                                                className="btn btn-warning mt-auto"
+                                                className="btn btn-success mt-auto"
                                             >
                                                 Reverse Task
                                             </button>
@@ -85,7 +115,7 @@ const TaskList = () => {
                         ))}
                     </div>
 
-                    
+
                     <div className="d-flex justify-content-between align-items-center mt-4">
                         <button
                             className="btn btn-outline-primary"

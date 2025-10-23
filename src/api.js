@@ -10,3 +10,6 @@ export const getTasks = (page = 0, size = 5) =>
 
 export const markTaskDone = (id,mark) =>
     axios.put(`${API_BASE}/update/${id}/${mark}`);
+
+export const getCount = () =>
+    axios.get(`${API_BASE}/count`);
