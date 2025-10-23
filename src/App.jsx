@@ -1,24 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import TaskAdd from "./components/TaskAdd";
+import TaskList from "./components/TaskList";
+
 
 function App() {
+  const [refresh, setRefresh] = React.useState(false);
+  const refreshList = () => setRefresh((prev) => !prev);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div className="container py-4">
+        <div className="text-center mb-4">
+          <h1 className="text-primary fw-bold">📝 To-Do Task Manager</h1>
+          <p className="text-muted">Create tasks and mark them as completed.</p>
+        </div>
+
+        <TaskAdd onTaskCreated={refreshList} />
+        <TaskList key={refresh} />
+      </div>
   );
 }
 
